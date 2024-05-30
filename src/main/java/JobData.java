@@ -5,10 +5,7 @@ import org.apache.commons.csv.CSVRecord;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by LaunchCode
@@ -19,16 +16,10 @@ public class JobData {
     private static boolean isDataLoaded = false;
 
     private static ArrayList<HashMap<String, String>> allJobs;
+   
 
-    /**
-     * Fetch list of all values from loaded data,
-     * without duplicates, for a given column.
-     *
-     * @param field The column to retrieve values from
-     * @return List of all of the values of the given field
-     */
+
     public static ArrayList<String> findAll(String field) {
-
         // load data, if not already loaded
         loadData();
 
@@ -53,21 +44,12 @@ public class JobData {
         return allJobs;
     }
 
-    /**
-     * Returns results of search the jobs data by key/value, using
-     * inclusion of the search term.
-     *
-     * For example, searching for employer "Enterprise" will include results
-     * with "Enterprise Holdings, Inc".
-     *
-     * @param column   Column that should be searched.
-     * @param value Value of teh field to search for
-     * @return List of all jobs matching the criteria
-     */
+
     public static ArrayList<HashMap<String, String>> findByColumnAndValue(String column, String value) {
 
         // load data, if not already loaded
         loadData();
+
 
         ArrayList<HashMap<String, String>> jobs = new ArrayList<>();
 
@@ -75,7 +57,7 @@ public class JobData {
 
             String aValue = row.get(column);
 
-            if (aValue.contains(value)) {
+            if (aValue.toLowerCase().contains(value.toLowerCase())) {
                 jobs.add(row);
             }
         }
@@ -90,12 +72,25 @@ public class JobData {
      * @return      List of all jobs with at least one field containing the value
      */
     public static ArrayList<HashMap<String, String>> findByValue(String value) {
-
         // load data, if not already loaded
         loadData();
 
+        ArrayList<HashMap<String,String>> filteredJobs = new ArrayList<>();
+        HashSet<HashMap<String,String>> seenJobs = new HashSet<>();
+
+        for(HashMap<String,String> job: allJobs){
+            for(String key : job.keySet()) {
+                String jobValue = job.get(key).toLowerCase();
+                if(jobValue != null && jobValue.toLowerCase().contains(value.toLowerCase())) {
+                    if(!seenJobs.contains(job)) {
+                        filteredJobs.add(job);
+                        seenJobs.add(job);
+                    }
+                }
+            }
+        }
         // TODO - implement this method
-        return null;
+        return filteredJobs;
     }
 
     /**
